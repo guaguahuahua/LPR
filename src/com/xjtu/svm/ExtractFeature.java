@@ -12,8 +12,10 @@ public class ExtractFeature {
 
 	/**
 	 * 提取rgbMat中的特征， 以172维度的向量返回
-	 * @param rgbMat
-	 * @param feature 返回的mat，存放rgbMat 的特征
+	 * @param rgbMat Mat
+	 * 					输入的彩色图像
+	 * @return Mat
+	 * 					返回抽取原二值图像的特征，以mat的形式返回
 	 */
 	public static Mat extractFeature(Mat rgbMat) {
 		Mat feature=new Mat(1, rgbMat.rows()+rgbMat.cols(), CvType.CV_8UC1);
@@ -45,6 +47,11 @@ public class ExtractFeature {
 		//以mat的形式将抽取的特征返回（水平+垂直方向）
 		return feature;
 	}
+	
+	/**
+	 * 阶段行测试
+	 * @param args
+	 */
 	public static void main(String []args) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		String file="E:/HasPlate/plate (1).jpg";

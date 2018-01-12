@@ -13,8 +13,10 @@ public class AreaSelect {
 
 	/**
 	 * 通过调用colorSelect得到了该图像对应的蓝色面积，现在取面积值最大的那个图像作为最终识别的图像
-	 * @param resImg
-	 * @param finalImg
+	 * @param resImg List<Mat>
+	 * 					输入图像的的集合
+	 * @return Mat
+	 * 					返回蓝色区域面积最大的那个图像
 	 */
 	public static Mat areaSelect(List<Mat> resImg) {
 		
@@ -41,8 +43,10 @@ public class AreaSelect {
 	
 	/**
 	 * 从给定的图像中将蓝色区域置为对象其他颜色置为背景，并返回蓝色区域的面积
-	 * @param mat
-	 * @return
+	 * @param mat 
+	 * 			输入图像
+	 * @return int
+	 * 			蓝色区域的面积
 	 */
 	public static int colorSelect(Mat original) {
 		//设置s，v的变化区间

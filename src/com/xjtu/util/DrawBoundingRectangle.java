@@ -13,8 +13,10 @@ public class DrawBoundingRectangle {
 	
 	/**
 	 * 在给定的original Mat上面， 将动态数组中的RotatedRect的轮廓绘制出来
-	 * @param original Mat类型的图像 
-	 * @param results 存放RotatedRect 的动态数组
+	 * @param original Mat
+	 * 					输入图像 
+	 * @param results List<RotatedRect> 
+	 * 					存放RotatedRect 的动态数组
 	 */
 	public static void drawBoundingRectangle(Mat original, List<RotatedRect>results) {
 		
@@ -29,6 +31,14 @@ public class DrawBoundingRectangle {
 			}
 		}		
 	}
+	
+	/**
+	 * 在给定图像上面将矩形的轮廓绘制出来
+	 * @param noRivetMat Mat
+	 * 						输入图像
+	 * @param rectangles List<Rect>
+	 * 						矩形轮廓的存放集合
+	 */
 	public static void drawBoundingRectangle_1(Mat noRivetMat, List<Rect> rectangles) {
 		Point[]p=new Point[4];
 		for(int i=0; i<p.length; i++) {

@@ -10,12 +10,17 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 public class DeskewAndAffine {
+
 	/**
 	 * 对通过面积阈值筛选的矩形区域再次进行一个筛选，主要是通过倾斜角度
 	 * 筛掉那些倾角过大的矩形区域，并对有倾斜的区域进行倾斜矫正，然后使用
 	 * 仿射变换将旋转矩形转正（保持水平）
-	 * @param pengdingArea
-	 * @param res
+	 * @param src Mat
+	 * 				输入图像
+	 * @param pengdingArea List<RotatedRect>
+	 * 				待校正存放旋转矩形的集合		
+	 * @param res List<Mat>
+	 * 				存放裁剪的校正过后的图像的集合
 	 */
 	public static void deskewAndAffine(Mat src, List<RotatedRect>pengdingArea, List<Mat>res) {
 		//角度的范围
@@ -67,6 +72,7 @@ public class DeskewAndAffine {
 				if(y<0) {
 					y=0;
 				}
+				//这块是防止裁剪区域越界，超过图像的部分，直接抛弃
 				if(x+rr.size.width>src.cols()) {
 					rr.size.width=src.cols()-x-1;
 				}
@@ -75,12 +81,14 @@ public class DeskewAndAffine {
 				}
 				System.out.println("x:"+x+","+"y:"+y);
 				System.out.println(x+rr.size.width+","+y+rr.size.height);
+				//裁剪区域的矩形
 				Rect rect=new Rect((int) x,(int) y, (int) rr.size.width, (int) rr.size.height);
+				//裁剪
 				Mat mat=new Mat(pengding,rect);
 				Mat t=Resize.resize(mat);
 				System.out.println(t.rows()+","+t.cols());
+				//将裁剪结果添加到集合中
 				res.add(t);
-				
 //				Imshow.imshow(t);
 			//图像没有倾斜
 			}else {

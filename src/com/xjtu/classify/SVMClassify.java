@@ -11,11 +11,13 @@ import com.xjtu.svm.ExtractFeature;
 
 public class SVMClassify {
 
-	private static String filePath="E:/Eclipse/LPR/svm.xml";
+	private static final String filePath="E:/Eclipse/LPR/svm.xml";
 	/**
 	 * 使用svm对裁剪得到的车牌进行判断，最终只保留模型预测为车牌的图像，
-	 * @param pengdingImg 裁剪得到的所有图像
-	 * @param classifiedImg 最终判定为车牌的图像
+	 * @param pengdingImg List
+	 * 						裁剪得到的所有图像
+	 * @param classifiedImg List
+	 * 						最终判定为车牌的图像
 	 */
 	public static void svmClassify(List<Mat>pengdingImg, List<Mat> classifiedImg) {
 		//初始化svm对象,直接加载训练好的svm模型

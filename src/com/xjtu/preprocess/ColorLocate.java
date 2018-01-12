@@ -18,44 +18,48 @@ import com.xjtu.util.Imshow;
 import com.xjtu.util.VerifySize;
 
 public class ColorLocate {
-	private static final int morphSizeWidth=10;
-	private static final int morphSizeHeight=2;
+	
 	/**
-	 * 颜色定位,不进行自适应阈值
-	 * @param original
+	 * 颜色定位,使用了自适应颜色阈值
+	 * @param original Mat
+	 * 					输入图像
+	 * @param color int 
+	 * 					进行定位的颜色
+	 * @param results RotatedRect
+	 * 					可能为车牌轮廓的旋转矩形
+	 * @param debug boolean
+	 * 					是否进入调试模式（显示图像处理的细节）
 	 */
-	public static void colorLocate(Mat original, int color, List<RotatedRect> results) {
+	public static void colorLocate(Mat original, int color, List<RotatedRect> results, boolean debug) {
+		//设定s，v分量值的变化范围
 		int maxSV=255;
 		int minSV=95;
 		int minRefSV=64;
 		//蓝色色度范围
 		int minBlue=100;
-		int maxBlue=140; //120 
-		//黄色色度范围
-		int minYellow=15;
-		int maxYellow=40;
+		int maxBlue=140; //120
+//		//黄色色度范围
+//		int minYellow=15;
+//		int maxYellow=40;
 		//图像转到hsv空间
 		Mat hsvMat=new Mat();
 		Imgproc.cvtColor(original, hsvMat, Imgproc.COLOR_BGR2HSV);
-		//
-		//Imshow.imshow(hsvMat);
+		if(debug) {
+			Imshow.imshow(hsvMat, "HSV空间的图像.ColorLocate");			
+		}
 		//对亮度v进行直方图均衡化
 		List<Mat> components=new ArrayList<Mat>();
 		Core.split(hsvMat, components);
 		Imgproc.equalizeHist(components.get(2), components.get(2));
 		//将均衡之后的图像进行合并
 		Core.merge(components, hsvMat);
-		//
-		//Imshow.imshow(hsvMat);
+		if(debug) {
+			Imshow.imshow(hsvMat, "V分量直方图均衡化后的图像.ColorLocate");
+		}
 		int maxH=0;
 		int minH=0;
 		//判断对哪种颜色的车牌进行识别
 		switch(color) {
-		//黄色车牌
-		case 0:
-		maxH=maxYellow;
-		minH=minYellow;
-		break;
 		
 		//蓝色车牌
 		case 1:
@@ -87,7 +91,7 @@ public class ColorLocate {
 					double HDiff=Math.abs(h-averH);
 					//计算差值在色度范围的比例
 					double r=HDiff/diffH;
-//					System.out.println("r: "+r);
+					//System.out.println("r: "+r);
 					//设定SV的最小阈值
 					minSV=(int) (minRefSV-minRefSV/2*(1-r));
 					//判断是否满足sv值
@@ -97,9 +101,9 @@ public class ColorLocate {
 				}
 				//满足阈值者置为对象，否则置为背景
 				if(match) {
-					hsvMat.put(row, col, new byte[] {(byte)0,(byte)0,(byte)255});
+					hsvMat.put(row, col, new byte[] {(byte)0, (byte)0, (byte)255});
 				}else {
-					hsvMat.put(row, col, new byte[] {(byte)0,(byte)0,(byte)0});
+					hsvMat.put(row, col, new byte[] {(byte)0, (byte)0, (byte)0});
 				}
 			}
 		}
@@ -108,21 +112,28 @@ public class ColorLocate {
 		Core.split(hsvMat, mv);
 		//得到v分量的二值图
 		Mat grayMat=mv.get(2);
-		//Imshow.imshow(grayMat);
+		if(debug) {
+			Imshow.imshow(grayMat, "V分量的二值图像.ColorLocate");
+		}
 		//闭运算，修补空隙
 		Mat closedMat=new Mat();
-		Mat element=Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(morphSizeWidth,morphSizeHeight));
+		Mat element=Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(ColorLocateConstant.getMorphsizewidth(), ColorLocateConstant.getMorphsizeheight()));
 		Imgproc.morphologyEx(grayMat, closedMat, Imgproc.MORPH_CLOSE, element);
-//		Imshow.imshow(closedMat);
+		if(debug) {
+			Imshow.imshow(closedMat, "闭运算之后的图像.ColorLocate");
+		}
 		//查找轮廓
 		List<MatOfPoint> contours=new ArrayList<MatOfPoint>(); //存放轮廓
 		Mat hierarchy=new Mat(); //存放轮廓之间的包含关系
-		Imgproc.findContours(closedMat, contours, hierarchy,Imgproc.RETR_EXTERNAL,Imgproc.CHAIN_APPROX_NONE);
+		Imgproc.findContours(closedMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 		System.out.println("ColorLocate part:");
 		System.out.println("颜色定位轮廓数量："+contours.size());
 		//求轮廓的旋转外接矩形，并对其根据面积阈值进行筛选
 		for(int i=0; i<contours.size(); i++) {
-//			Imgproc.drawContours(original, contours, i,new Scalar(0,0,255),1);
+			//在原图上面将定位得到的轮廓绘制出来
+			if(debug) {
+				Imgproc.drawContours(original, contours, i,new Scalar(0,0,255),1);				
+			}
 			//格式转换 matOfpoint-->matOfPoint2f
 			MatOfPoint2f m2f=new MatOfPoint2f();
 			contours.get(i).convertTo(m2f, CvType.CV_32F);

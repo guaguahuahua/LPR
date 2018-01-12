@@ -18,26 +18,28 @@ public class ChineseFeatures {
 	private static final int HORIZONTAL=0;
 	
 	/**
-	 * 保证传递进来额图像是单通道的灰度图
-	 * 获取字符特征
-	 * @param grayImg 字符的灰度图
-	 * @return 抽取的特征
+	 * 保证传递进来的图像是单通道的灰度图获取字符特征
+	 * @param grayImg Mat
+	 * 					字符的灰度图
+	 * @return Mat
+	 * 					抽取的特征
 	 */
 	public static Mat chineseFeatures(Mat grayImg) {
+		//如果不是单通道的图像，那么首相转化为单通的灰度图像
 		if(grayImg.channels()!=1) {
 			Imgproc.cvtColor(grayImg, grayImg, Imgproc.COLOR_RGB2GRAY);
 		}
 		//首先对图像进行大小的转化过程
-//		Imshow.imshow(grayImg);
+		//Imshow.imshow(grayImg);
 		Mat resizedImg=new Mat();
 		Rect rect=getRect(grayImg);
 		Mat cuttedImg=cutRect(rect, grayImg);
-//		Imshow.imshow(cuttedImg);
+		//Imshow.imshow(cuttedImg);
 		//20*20--->32*20，图像变大，所以使用了线性插值的过程填补增大部分的区域
 		Imgproc.resize(grayImg, resizedImg, new Size(20, 32), 0, 0, Imgproc.INTER_LINEAR);
 		//这块是给后面投影做备份
 		Mat mat=resizedImg.clone();
-//		Imshow.imshow(mat);
+		//Imshow.imshow(mat);
 		//
 //		for(int row=0; row<resizedImg.rows(); row++) {
 //			for(int col=0; col<resizedImg.cols(); col++) {
@@ -69,8 +71,8 @@ public class ChineseFeatures {
 		//对原图像二值化
 		Mat dst=new Mat();
 		Imgproc.threshold(mat, dst, Imgproc.THRESH_OTSU+Imgproc.THRESH_BINARY, 255, 0);
-//		Imshow.imshow(mat);
-//		Imshow.imshow(dst);
+		//Imshow.imshow(mat);
+		//Imshow.imshow(dst);
 		//将二值图改变大小为32*32
 		Imgproc.resize(dst, dst, new Size(32, 32), 0, 0, Imgproc.INTER_LINEAR);
 		//进行水平垂直投影
@@ -100,8 +102,10 @@ public class ChineseFeatures {
 	
 	/**
 	 * 提取图像的gabor特征，计划分4个方向，共4*20*20=1600维向量
-	 * @param grayImg 灰度图
+	 * @param grayImg Mat
+	 * 					灰度图
 	 * @return Mat
+	 * 					返回特征
 	 */
 	public static Mat gaborFeatures(Mat grayImg) {
 		Mat features=new Mat(1, 400*4, CvType.CV_32FC1);
@@ -169,13 +173,17 @@ public class ChineseFeatures {
 //		Imshow.imshow(dst);
 		return features;
 	}
+	
 	/**
 	 * 使用LBP和投影特征
 	 * 方法1：直接使用lbp特征的投影直方图，即对得到的lbp特征矩阵进行一个灰度统计，每个灰度值的频率作为最终特征共计256个特征向量，外加水平垂直方向的投影
 	 * 方法2：得到lbp特征矩阵之后，对整个灰度矩阵做归一化处理之后（除255），直接拉伸为1维向量，作为特征外加水平垂直投影
 	 * 方法3：对lbp特征矩阵32*32进行分块，分为4*4的小块，对每个小块进行水平垂直投影
-	 * @param grayImg
+	 * @param grayImg Mat
+	 * 					输入
 	 * @return Mat
+	 * 					特征
+	 * 
 	 */
 	public static Mat LBPAndProjectFeatures(Mat grayImg) {
 		if(grayImg.channels()!=1) {
@@ -285,11 +293,15 @@ public class ChineseFeatures {
 //		}
 		return feature;
 	}
+	
 	/**
 	 * 水平和垂直方向进行投影，并对投影进行规格化
-	 * @param mat 原图像
-	 * @param direction 投影方向, 规定0为水平，1为垂直
-	 * @return double[]
+	 * @param mat Mat
+	 * 				原图像
+	 * @param direction int 
+	 * 				投影方向, 规定0为水平，1为垂直
+	 * @return Mat
+	 * 				投影特征
 	 */
 	public static Mat project(Mat mat, int direction) {
 		//记录特征根据输入向量的大小建立特征
@@ -323,9 +335,13 @@ public class ChineseFeatures {
 	
 	/**
 	 * 这块使用灰度跳变的方式来作为统计特征，而不是每一行的对象点的个数
-	 * @param mat 二值化图像
-	 * @param direction 投影的方向，0表示水平，1表示垂直
+	 * 水平垂直投影
+	 * @param mat Mat
+	 * 				二值化图像
+	 * @param direction int 
+	 * 				投影的方向，0表示水平，1表示垂直
 	 * @return Mat
+	 * 				投影特征
 	 */
 	private static Mat project_1(Mat mat, int direction) {
 		//得到行数或者列数
@@ -351,15 +367,15 @@ public class ChineseFeatures {
 				features.put(0, i, new float[] { val });
 			}
 		}
-		
-		
 		return features;
 	} 
 	
 	/**
 	 * 统计一行或者是一列灰度跳变的次数
-	 * @param mat 一行或者一列的数据
+	 * @param mat Mat
+	 * 				一行或者一列的数据
 	 * @return int
+	 * 				一行或者一列跳变次数
 	 */
 	private static int count(Mat mat) {
 		
@@ -385,8 +401,10 @@ public class ChineseFeatures {
 	
 	/**
 	 * 计算一行或者是一列中非背景元素的个数
-	 * @param data 一行或者是一列元素
+	 * @param data Mat
+	 * 				一行或者是一列元素
 	 * @return int
+	 * 				一行中前景像素的个数
 	 */
 	public static int countObject(Mat data) {
 		int count=0;
@@ -409,9 +427,11 @@ public class ChineseFeatures {
 	}
 	
 	/**
-	 * 获取字符的类似外接矩形
-	 * @param mat 灰度图
-	 * @return 矩形
+	 * 获取字符的外接矩形
+	 * @param mat Mat
+	 * 				灰度图
+	 * @return Rect
+	 * 				矩形
 	 */
 	private static Rect getRect(Mat mat) {
 		
@@ -421,6 +441,7 @@ public class ChineseFeatures {
 		boolean flag=false;
 		for(int row=0; row<mat.rows(); row++) {
 			for(int col=0; col<mat.cols(); col++) {
+				//如果找到一个前景像素
 				if(mat.get(row, col)[0]>20) {
 					top=row;
 					flag=true;
@@ -487,9 +508,12 @@ public class ChineseFeatures {
 	
 	/**
 	 * 将字符区域从原mat上面裁剪下来
-	 * @param rect 要裁剪的区域
-	 * @param mat 原图
+	 * @param rect Mat
+	 * 				要裁剪的区域
+	 * @param mat Mat
+	 * 				原图
 	 * @return Mat
+	 * 				返回裁剪之后图像
 	 */
 	private static Mat cutRect(Rect rect, Mat mat) {
 		//创建一个返回的mat,将裁剪区域的图像依次复制过来
@@ -499,10 +523,14 @@ public class ChineseFeatures {
 	
 	/**
 	 * 使用lbp算法提取特征
-	 * @param src 输入图像，
-	 * @param dst 输入图像
-	 * @param radius 半径
-	 * @param neighbors 计算当前点的LBP值所需要的领域像素点的数目
+	 * @param src Mat
+	 * 				输入图像
+	 * @param dst Mat
+	 * 				输入图像
+	 * @param radius int 
+	 * 				 半径
+	 * @param neighbors int
+	 * 				 计算当前点的LBP值所需要的领域像素点的数目
 	 */
 	private static void elbp(Mat src, Mat dst, int radius, int neighbors) {
 		
