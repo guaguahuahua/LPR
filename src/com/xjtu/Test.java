@@ -24,6 +24,7 @@ public class Test {
 		private static String returnWords="请重新拍照！";
 		//用与在当前类中显示一些处理过程中的图像
 		private static boolean detail=false;
+		
 		/**
 		 * 这块是服务端处理流程的开始
 		 * @param filePath 从服务端获取的图像在本地的存放绝对地址

@@ -27,7 +27,7 @@ public class SVMClassify {
 		if(file.exists()) {
 			svm=SVM.load(filePath);
 		}else{
-			System.out.println("SVMCLassify line 26"+"svm model doesn't exsit !");
+			System.out.println("SVMCLassify line 26"+" svm model doesn't exsit !");
 		}
 		//遍历所有的待定图像
 		for(int count=0; count<pengdingImg.size(); count++) {

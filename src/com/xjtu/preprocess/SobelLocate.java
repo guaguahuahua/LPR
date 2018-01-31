@@ -20,7 +20,7 @@ import com.xjtu.util.Imshow;
 import com.xjtu.util.Resize;
 import com.xjtu.util.VerifySize;
 
-public class SobelLocate {
+public class SobelLocate{
 	
 	/**
 	 * 对输入图像进行灰化，二值化,高斯模糊，形态学闭运算处理，之后再进行轮廓查找过程
@@ -121,4 +121,5 @@ public class SobelLocate {
 		Mat rgbImg=Imgcodecs.imread(path);
 		Imshow.imshow(rgbImg, "测试图像读入");
 	}
+	
 }

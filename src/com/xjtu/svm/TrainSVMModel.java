@@ -22,8 +22,14 @@ public class TrainSVMModel {
 
 	/**
 	 * 读入有车牌的训练集
-	 * @param hasPlate
-	 * @param label
+	 * @param mat Mat
+	 * 				训练图像存放特征的Mat集合
+	 * @param label List<Byte>
+	 * 				每一副图像标签对应的标签存放在这个集合
+	 * @param testImg Mat
+	 * 				测试图像的特征集合
+	 * @param labels List<Byte>
+	 * 				测试图像标签存放集合
 	 */
 	public static void readInPlateImg(Mat mat, List<Byte>label, Mat testImg, List<Byte>labels) {
 		String path="E:/HasPlate";
@@ -56,8 +62,14 @@ public class TrainSVMModel {
 	
 	/**
 	 * 读入无车牌的训练集
-	 * @param noPlate
-	 * @param label
+	 * @param mat Mat
+	 * 				训练图像特征存放集合
+	 * @param label List<Byte>
+	 * 				训练图像的标签集合
+	 * @param testImg Mat
+	 * 				测试图像特征集合
+	 * @param labels List<Byte>
+	 * 				测试图像的标签集合
 	 */
 	public static void readInNoPlateImg(Mat mat, List<Byte>label, Mat testImg, List<Byte>labels) {
 		String path="E:/NoPlate";
@@ -84,10 +96,13 @@ public class TrainSVMModel {
 		}
 	}
 	
+	
 	/**
 	 * 训练SVM 并将训练好的模型写进xml文件
-	 * @param trainningData 数据集 
-	 * @param label 标签集
+	 * @param trainningData Mat
+	 * 						训练数据的特征集
+	 * @param clusses Mat
+	 * 						训练数据的标签集
 	 * 注意 :
 	 *    trainningData CV_32FC1
 	 *    clusses       CV_32SC1
@@ -108,6 +123,7 @@ public class TrainSVMModel {
 				System.out.println("trainningDataType: "+CvType.typeToString(trainningData.type()));
 				System.out.println("classesType: "+CvType.typeToString(clusses.type()));
 				System.out.println(trainningData.rows()==clusses.rows());
+				
 				svm.trainAuto(trainningData, 
 						Ml.ROW_SAMPLE, //表明是样本是行存储还是列存储
 						clusses,
@@ -121,6 +137,7 @@ public class TrainSVMModel {
 						true);
 				//将svm模型写入到xml文件
 				svm.save(fileName);	
+				System.out.println("SVM 模型训练完毕！");
 	}
 
 	/**
@@ -140,7 +157,8 @@ public class TrainSVMModel {
 		List<Byte> label=new ArrayList<Byte>();
 		Mat trainningSet=new Mat();
 		Mat trainningData=new Mat();
-		Mat classes=new Mat(2*trainNums, 1, CvType.CV_8UC1); //存放分类标签,标签的行数是训练图像的总数目，所以乘2
+		//存放分类标签,标签的行数是训练图像的总数目，所以乘2
+		Mat classes=new Mat(2*trainNums, 1, CvType.CV_8UC1); 
 		Mat clusses=new Mat();
 		//存放测试图像和标签的mat
 		Mat testImg=new Mat(); 
@@ -152,6 +170,7 @@ public class TrainSVMModel {
 		trainningSet.convertTo(trainningData, CvType.CV_32FC1);
 		//现在将label转换为mat类型，单通道，因为没有合适的接口，所以自己写
 		for(int i=0; i<label.size(); i++) {
+			//标签是单通道的Mat，并且只有一列，由0和1组成
 			byte[] t=new byte[1];
 			t[0]=label.get(i);
 			classes.put(i, 0, t);
@@ -170,13 +189,11 @@ public class TrainSVMModel {
 			svm=SVM.load(fileName);
 		//如果没有训练好的模型文件，那么调用系统的svm直接训练模型，并将训练好的模型保存在svm.xml中去
 		}else {
+			System.out.println("SVM 模型不存在，开始训练....");
 			trainSVM(trainningData, clusses);
 		}
 		System.out.println("标签集地 数量："+labels.size());
-		System.out.println("classes.size: "+classes.size());
-		System.out.println("label.size: "+label.size());
-		System.out.println("clusses.size: "+clusses.size());
-		System.out.println("trainningData.rows: "+trainningData.rows()+", trainningData.cols: "+trainningData.cols());
+		System.out.println("训练数据量: "+trainningData.rows()+", 训练数据特征数: "+trainningData.cols());
 		//统计预测结果和原类型相同的个数
 		int counting=0;
 		//将测试数据的Mat进行加载， svm进行一个预测
@@ -197,14 +214,14 @@ public class TrainSVMModel {
 		}
 		//输出最后的预测准确率
 		double rate=(double) counting/(double) labels.size();
-		System.out.println("C: "+svm.getC());
-		System.out.println("coef: "+svm.getCoef0());
-		System.out.println("degree: "+svm.getDegree());
-		System.out.println("gamma: "+svm.getGamma());
-		System.out.println("kernel: "+svm.getKernelType());
-		System.out.println("nu: "+svm.getNu());
-		System.out.println("p: "+svm.getP());
-		System.out.println("type: "+svm.getType());
-		System.out.println(counting+","+labels.size()+", "+rate);
+//		System.out.println("C: "+svm.getC());
+//		System.out.println("coef: "+svm.getCoef0());
+//		System.out.println("degree: "+svm.getDegree());
+//		System.out.println("gamma: "+svm.getGamma());
+//		System.out.println("kernel: "+svm.getKernelType());
+//		System.out.println("nu: "+svm.getNu());
+//		System.out.println("p: "+svm.getP());
+//		System.out.println("type: "+svm.getType());
+		System.out.println("判断准确图像："+counting+", "+"总共图像数量："+labels.size()+", 判定准确率："+rate);
 	}
 }

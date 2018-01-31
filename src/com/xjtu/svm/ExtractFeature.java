@@ -12,6 +12,7 @@ public class ExtractFeature {
 
 	/**
 	 * 提取rgbMat中的特征， 以172维度的向量返回
+	 * 因为图像大小是36*136，提取的是
 	 * @param rgbMat Mat
 	 * 					输入的彩色图像
 	 * @return Mat
