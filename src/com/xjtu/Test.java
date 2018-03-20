@@ -3,8 +3,8 @@ package com.xjtu;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.imgcodecs.Imgcodecs;
 
@@ -12,11 +12,13 @@ import com.xjtu.charseperate.SeperateChars;
 import com.xjtu.classify.AreaSelect;
 import com.xjtu.classify.SVMClassify;
 import com.xjtu.preprocess.ColorLocate;
+import com.xjtu.preprocess.MserLocate;
 import com.xjtu.preprocess.SobelLocate;
 import com.xjtu.recognize.CharRecognize;
 import com.xjtu.util.DeskewAndAffine;
 import com.xjtu.util.DrawBoundingRectangle;
 import com.xjtu.util.Imshow;
+import com.xjtu.util.Resize;
 import com.xjtu.util.Resize1;
 
 public class Test {
@@ -68,11 +70,18 @@ public class Test {
 			List<Mat> res1=new ArrayList<Mat>();
 			//参数依次为：原图，轮廓图，切割图
 			DeskewAndAffine.deskewAndAffine(original, colorRes, res1);
+			
+			//使用MSER定位的信息，这块主要是MSER返回的结果中没有RotatedRect这个对象，所以不用对返回值进行旋转矫正，这块也在一定程度上削减了后面识别的效果
+			List<Rect> rect=new ArrayList<Rect>();
+			boolean debug=false;
+			Mat mserMat=MserLocate.mserLocate(original, rect, debug);
+			Mat resizedMat=Resize.resize(mserMat);
 			//使用svm对待定区域进行判定
-			List <Mat> pengdingImg=new ArrayList <Mat>();
+			List <Mat> pengdingImg=new ArrayList <Mat>();		
 			//将两种方式裁剪的图像放在同一个数组中
 			pengdingImg.addAll(res1);
 			pengdingImg.addAll(res);
+			pengdingImg.add(resizedMat);
 			//调用SVM模型对待定区域进行分类
 			List<Mat> classifiedImg=new ArrayList<Mat>();
 			SVMClassify.svmClassify(pengdingImg, classifiedImg);

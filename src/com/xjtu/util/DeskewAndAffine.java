@@ -103,6 +103,7 @@ public class DeskewAndAffine {
 				//创建裁剪区域
 				Rect rect=new Rect((int) x,(int) y, (int) rr.size.width, (int) rr.size.height);
 				Mat mat=new Mat(src,rect);
+				//对图像的大小进行归一化
 				Mat t=Resize.resize(mat);
 				System.out.println(t.rows()+","+t.cols());
 				res.add(t);

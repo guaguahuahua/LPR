@@ -25,6 +25,12 @@ public class CharFeatures_1 {
 		Mat features=new Mat(1, 120, CvType.CV_32FC1);
 		//获得裁剪区域
 		Rect rect=getRect(mat);
+		//在这里添加判断，因为在只有一行或者是一列的情形下，会导致裁剪区域大于原区域，从而出现越界错误
+		if(rect.width>mat.size().width || rect.height>mat.size().height) {
+			rect.width=(int) mat.size().width;
+			rect.height=(int) mat.size().height;
+		}
+//		System.out.println(rect.x+", "+rect.y+", "+rect.height+", "+rect.width);
 		Mat area=cutRect(rect, mat);
 		//对裁剪区域进行大小归一化10*10
 		Imgproc.resize(area, area, new Size(10, 10));
@@ -45,7 +51,6 @@ public class CharFeatures_1 {
 				features.put(0, index++, new float[] {(float) area.get(row, col)[0]});
 			}
 		}
-		
 		return features;
 	}
 	

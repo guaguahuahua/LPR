@@ -259,6 +259,7 @@ public class TrainANNModel {
 			Mat temp=new Mat(testData, rowRange, colRange);
 			//存放对这张图像的预测结果
 			Mat result=new Mat();
+			//使用ann模型进行预测的时候，输出的是一个图像的特征（Mat类型的），以及最终的预测结果，浮点数的形式，对于模型中的每个类别都给出了一个最终的预测结果，但是取最大的预测值作为我们最终的预测结果
 			ann.predict(temp, result, 0);
 			//将预测结果添加到总集合
 			res.push_back(result);
@@ -266,7 +267,7 @@ public class TrainANNModel {
 		//测试ann的准确率
 		int count=0;
 		int index=0;
-		
+		//在ann的判定中，最终的判定的结果是
 		for(int cla=0; cla<nums.size(); cla++) {
 			int t=(int) nums.get(cla);
 

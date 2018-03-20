@@ -61,8 +61,8 @@ public class CharRecognize {
 //		int position=PatternMatch.patternMatch(chara);
 		System.out.println(position);
 		charSet=charSet+cCharacter[position];
-		//英文字符预测		
-		//开始遍历所有的数字、字符 的图像，
+		//英文字符预测
+		//开始遍历所有的数字、字符 的图像
 		for(int i=1; i<chars.size(); i++) {
 			//获得一张字符图像
 			Mat character=chars.get(i);
@@ -73,7 +73,7 @@ public class CharRecognize {
 //			Mat feature=CharFeatures_1.charFeatures_1(character);
 			Mat results=new Mat();
 			//预测结果，存放在results中
-			annRes=ann.predict(feature, results, 1);
+			annRes=ann.predict(feature, results, 0);
 			System.out.println(annRes);
 			double max=-2;
 			int index=0;
@@ -98,7 +98,6 @@ public class CharRecognize {
 //				System.out.println();
 //			}
 		}
-
 		return charSet;
 	}
 
